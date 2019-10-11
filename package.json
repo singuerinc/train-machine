@@ -1,0 +1,16 @@
+{
+  "name": "train-machine",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:singuerinc/train-machine.git",
+  "author": "singuerinc <nahuel.scotti@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "parcel-bundler": "^1.12.4",
+    "rxjs": "^6.5.3",
+    "xstate": "^4.6.7"
+  },
+  "scripts": {
+    "start": "parcel src/index.ts"
+  }
+}
