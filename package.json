@@ -1,7 +1,7 @@
 {
   "name": "train-machine",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/index.ts",
   "repository": "git@github.com:singuerinc/train-machine.git",
   "author": "singuerinc <nahuel.scotti@gmail.com>",
   "license": "MIT",
@@ -12,5 +12,8 @@
   },
   "scripts": {
     "start": "parcel src/index.ts"
+  },
+  "devDependencies": {
+    "typescript": "^3.6.4"
   }
 }
