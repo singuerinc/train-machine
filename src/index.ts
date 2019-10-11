@@ -7,3 +7,7 @@ console.log(t.x, t.y);
 t.state.send("RUN");
 
 console.log(t.x, t.y);
+
+t.state.send("STOP");
+t.state.send("LOAD");
+t.state.send("STOP");
