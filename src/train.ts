@@ -1,4 +1,7 @@
-import { interpret, Machine, StateMachine, Interpreter } from "xstate";
+import * as PIXI from "pixi.js";
+import { interpret, Interpreter, Machine, StateMachine } from "xstate";
+import anime from "animejs";
+import { Subject } from "rxjs";
 
 interface TrainContext {}
 
@@ -17,16 +20,21 @@ type TrainEvent =
   | { type: "LOAD" }
   | { type: "DOWNLOAD" };
 
-export class Train {
-  public x: number = 0;
-  public y: number = 0;
-  public state: Interpreter<TrainContext, TrainStateSchema, TrainEvent>;
+export class Train extends PIXI.Graphics {
+  private machine: StateMachine<TrainContext, TrainStateSchema, TrainEvent>;
+  public states: Interpreter<TrainContext, TrainStateSchema, TrainEvent>;
+  public cargo: number = 0;
+
+  cargoChanged = new Subject<number>();
 
   constructor() {
-    this.x = 0;
-    this.y = 0;
+    super();
 
-    const machine = Machine<TrainContext, TrainStateSchema, TrainEvent>({
+    this.beginFill(0xff0000);
+    this.drawRect(0, 0, 10, 10);
+    this.endFill();
+
+    this.machine = Machine<TrainContext, TrainStateSchema, TrainEvent>({
       strict: true,
       initial: "stop",
       states: {
@@ -43,35 +51,54 @@ export class Train {
           }
         },
         loading: {
+          onEntry: () => this.cargoChanged.next(200),
           on: {
-            STOP: "stop"
+            STOP: "stop",
+            DOWNLOAD: "downloading"
           }
         },
         downloading: {
+          onEntry: () => this.cargoChanged.next(0),
           on: {
-            STOP: "stop"
+            STOP: "stop",
+            LOAD: "loading"
           }
         }
       }
     });
 
-    this.state = interpret(machine);
+    this.states = interpret(this.machine);
 
-    this.state.onTransition(state => {
+    this.states.onTransition(state => {
       console.log(state.value);
 
       switch (state.value) {
         case "stop":
-          this.x = 0;
-          this.y = 0;
           break;
         case "running":
-          this.x = 100;
-          this.y = 100;
+          anime({
+            targets: this,
+            x: el => el.x + 1000,
+            duration: 3000,
+            easing: "easeInOutQuart"
+          });
           break;
       }
     });
 
-    this.state.start();
+    this.states.start();
+
+    this.interactive = true;
+
+    this.on("click", () => {
+      if (this.states.state.value === "stop") {
+        this.states.send("DOWNLOAD");
+      } else if (this.states.state.value === "downloading") {
+        this.states.send("LOAD");
+      } else if (this.states.state.value === "loading") {
+        this.states.send("STOP");
+        this.states.send("RUN");
+      }
+    });
   }
 }

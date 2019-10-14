@@ -1,13 +1,26 @@
+import * as PIXI from "pixi.js";
 import { Train } from "./train";
 
-const t = new Train();
+let app = new PIXI.Application({
+  antialias: false,
+  transparent: false,
+  resolution: 1
+});
+app.renderer.view.style.position = "absolute";
+app.renderer.view.style.display = "block";
+app.renderer.autoResize = true;
+app.renderer.resize(window.innerWidth, window.innerHeight);
 
-console.log(t.x, t.y);
+document.body.appendChild(app.view);
 
-t.state.send("RUN");
+const train = new Train();
+train.cargoChanged.subscribe(cargo => console.log("train 1 – cargo:", cargo));
 
-console.log(t.x, t.y);
+app.stage.addChild(train);
 
-t.state.send("STOP");
-t.state.send("LOAD");
-t.state.send("STOP");
+const loop = () => {
+  requestAnimationFrame(loop);
+  app.renderer.render(app.stage);
+};
+
+loop();
