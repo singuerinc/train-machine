@@ -1,4 +1,5 @@
 import * as PIXI from "pixi.js";
+import * as dat from "dat.gui";
 import { Train } from "./train";
 
 let app = new PIXI.Application({
@@ -14,7 +15,6 @@ app.renderer.resize(window.innerWidth, window.innerHeight);
 document.body.appendChild(app.view);
 
 const train = new Train();
-train.cargoChanged.subscribe(cargo => console.log("train 1 – cargo:", cargo));
 
 app.stage.addChild(train);
 
@@ -24,3 +24,22 @@ const loop = () => {
 };
 
 loop();
+
+const gui = new dat.GUI({ name: "Train" });
+const cargoCtrl = gui.add(train, "cargo");
+const coords = gui.addFolder("Coords");
+const nextCoords = {
+  x: 100,
+  y: 100,
+  go: function() {
+    train.go({ x: nextCoords.x, y: nextCoords.y });
+  }
+};
+coords.add(nextCoords, "x");
+coords.add(nextCoords, "y");
+coords.add(nextCoords, "go");
+
+train.cargoChanged.subscribe(cargo => {
+  console.log("train 1 – cargo:", cargo);
+  cargoCtrl.updateDisplay();
+});

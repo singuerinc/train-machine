@@ -51,14 +51,20 @@ export class Train extends PIXI.Graphics {
           }
         },
         loading: {
-          onEntry: () => this.cargoChanged.next(200),
+          onEntry: () => {
+            this.cargo = 200;
+            this.cargoChanged.next(this.cargo);
+          },
           on: {
             STOP: "stop",
             DOWNLOAD: "downloading"
           }
         },
         downloading: {
-          onEntry: () => this.cargoChanged.next(0),
+          onEntry: () => {
+            this.cargo = 0;
+            this.cargoChanged.next(this.cargo);
+          },
           on: {
             STOP: "stop",
             LOAD: "loading"
@@ -71,19 +77,6 @@ export class Train extends PIXI.Graphics {
 
     this.states.onTransition(state => {
       console.log(state.value);
-
-      switch (state.value) {
-        case "stop":
-          break;
-        case "running":
-          anime({
-            targets: this,
-            x: el => el.x + 1000,
-            duration: 3000,
-            easing: "easeInOutQuart"
-          });
-          break;
-      }
     });
 
     this.states.start();
@@ -99,6 +92,17 @@ export class Train extends PIXI.Graphics {
         this.states.send("STOP");
         this.states.send("RUN");
       }
+    });
+  }
+
+  go({ x, y }: { x: number; y: number }) {
+    this.states.send("RUN");
+    anime({
+      targets: this,
+      x,
+      y,
+      duration: 3000,
+      easing: "easeInOutQuart"
     });
   }
 }
